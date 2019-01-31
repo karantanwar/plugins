@@ -268,12 +268,23 @@ public class FirebaseAuthPlugin implements MethodCallHandler {
     Map<String, String> arguments = call.arguments();
     String email = arguments.get("email");
     String password = arguments.get("password");
+    if (email == null || password == null) {
+      String smsCode = arguments.get("smsCode");
+      String verificationId = arguments.get("verificationId");
+      PhoneAuthCredential phoneAuthCredential =
+              PhoneAuthProvider.getCredential(verificationId, smsCode);
+      firebaseAuth
+              .getCurrentUser()
+              .linkWithCredential(phoneAuthCredential)
+              .addOnCompleteListener(new SignInCompleteListener(result));
+    } else {
+      AuthCredential credential = EmailAuthProvider.getCredential(email, password);
+      firebaseAuth
+              .getCurrentUser()
+              .linkWithCredential(credential)
+              .addOnCompleteListener(new SignInCompleteListener(result));
+    }
 
-    AuthCredential credential = EmailAuthProvider.getCredential(email, password);
-    firebaseAuth
-        .getCurrentUser()
-        .linkWithCredential(credential)
-        .addOnCompleteListener(new SignInCompleteListener(result));
   }
 
   private void handleCurrentUser(
