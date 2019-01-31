@@ -30,11 +30,11 @@ class FirebaseAuth {
   );
 
   final Map<int, StreamController<FirebaseUser>> _authStateChangedControllers =
-      <int, StreamController<FirebaseUser>>{};
+  <int, StreamController<FirebaseUser>>{};
 
   static int nextHandle = 0;
   final Map<int, Map<String, dynamic>> _phoneAuthCallbacks =
-      <int, Map<String, dynamic>>{};
+  <int, Map<String, dynamic>>{};
 
   final FirebaseApp app;
 
@@ -44,9 +44,6 @@ class FirebaseAuth {
 
     StreamController<FirebaseUser> controller;
     controller = StreamController<FirebaseUser>.broadcast(onListen: () {
-      // TODO(amirh): remove this on when the invokeMethod update makes it to stable Flutter.
-      // https://github.com/flutter/flutter/issues/26431
-      // ignore: strong_mode_implicit_dynamic_method
       _handle = channel.invokeMethod('startListeningAuthState',
           <String, String>{"app": app.name}).then<int>((dynamic v) => v);
       _handle.then((int handle) {
@@ -54,9 +51,6 @@ class FirebaseAuth {
       });
     }, onCancel: () {
       _handle.then((int handle) async {
-        // TODO(amirh): remove this on when the invokeMethod update makes it to stable Flutter.
-        // https://github.com/flutter/flutter/issues/26431
-        // ignore: strong_mode_implicit_dynamic_method
         await channel.invokeMethod("stopListeningAuthState",
             <String, dynamic>{"id": handle, "app": app.name});
         _authStateChangedControllers.remove(handle);
@@ -79,9 +73,6 @@ class FirebaseAuth {
   ///   • `ERROR_OPERATION_NOT_ALLOWED` - Indicates that Anonymous accounts are not enabled.
   Future<FirebaseUser> signInAnonymously() async {
     final Map<dynamic, dynamic> data = await channel
-        // TODO(amirh): remove this on when the invokeMethod update makes it to stable Flutter.
-        // https://github.com/flutter/flutter/issues/26431
-        // ignore: strong_mode_implicit_dynamic_method
         .invokeMethod('signInAnonymously', <String, String>{"app": app.name});
     final FirebaseUser currentUser = FirebaseUser._(data, app);
     return currentUser;
@@ -102,9 +93,6 @@ class FirebaseAuth {
   }) async {
     assert(email != null);
     assert(password != null);
-    // TODO(amirh): remove this on when the invokeMethod update makes it to stable Flutter.
-    // https://github.com/flutter/flutter/issues/26431
-    // ignore: strong_mode_implicit_dynamic_method
     final Map<dynamic, dynamic> data = await channel.invokeMethod(
       'createUserWithEmailAndPassword',
       <String, String>{'email': email, 'password': password, 'app': app.name},
@@ -126,9 +114,6 @@ class FirebaseAuth {
     @required String email,
   }) async {
     assert(email != null);
-    // TODO(amirh): remove this on when the invokeMethod update makes it to stable Flutter.
-    // https://github.com/flutter/flutter/issues/26431
-    // ignore: strong_mode_implicit_dynamic_method
     final List<dynamic> providers = await channel.invokeMethod(
       'fetchSignInMethodsForEmail',
       <String, String>{'email': email, 'app': app.name},
@@ -147,9 +132,6 @@ class FirebaseAuth {
     @required String email,
   }) async {
     assert(email != null);
-    // TODO(amirh): remove this on when the invokeMethod update makes it to stable Flutter.
-    // https://github.com/flutter/flutter/issues/26431
-    // ignore: strong_mode_implicit_dynamic_method
     return await channel.invokeMethod(
       'sendPasswordResetEmail',
       <String, String>{'email': email, 'app': app.name},
@@ -205,9 +187,6 @@ class FirebaseAuth {
   ///   • `ERROR_OPERATION_NOT_ALLOWED` - Indicates that Google accounts are not enabled.
   Future<FirebaseUser> signInWithCredential(AuthCredential credential) async {
     assert(credential != null);
-    // TODO(amirh): remove this on when the invokeMethod update makes it to stable Flutter.
-    // https://github.com/flutter/flutter/issues/26431
-    // ignore: strong_mode_implicit_dynamic_method
     final Map<dynamic, dynamic> data = await channel.invokeMethod(
       'signInWithCredential',
       <String, dynamic>{
@@ -262,15 +241,20 @@ class FirebaseAuth {
   /// [codeAutoRetrievalTimeout] Optional callback.
   ///   It will trigger when SMS auto-retrieval times out and provide a
   ///   [verificationId].
-  Future<void> verifyPhoneNumber({
-    @required String phoneNumber,
-    @required Duration timeout,
-    int forceResendingToken,
-    @required PhoneVerificationCompleted verificationCompleted,
-    @required PhoneVerificationFailed verificationFailed,
-    @required PhoneCodeSent codeSent,
-    @required PhoneCodeAutoRetrievalTimeout codeAutoRetrievalTimeout,
-  }) async {
+  ///
+  /// [linkCredentials] Default false.
+  ///   Set to true when phone number verification is used to link a phone number to an existing user who is
+  ///   currently logged in
+
+  Future<void> verifyPhoneNumber(
+      {@required String phoneNumber,
+        @required Duration timeout,
+        int forceResendingToken,
+        @required PhoneVerificationCompleted verificationCompleted,
+        @required PhoneVerificationFailed verificationFailed,
+        @required PhoneCodeSent codeSent,
+        @required PhoneCodeAutoRetrievalTimeout codeAutoRetrievalTimeout,
+        bool linkCredentials = false}) async {
     final Map<String, dynamic> callbacks = <String, dynamic>{
       'PhoneVerificationCompleted': verificationCompleted,
       'PhoneVerificationFailed': verificationFailed,
@@ -283,14 +267,12 @@ class FirebaseAuth {
     final Map<String, dynamic> params = <String, dynamic>{
       'handle': nextHandle,
       'phoneNumber': phoneNumber,
+      'link': linkCredentials,
       'timeout': timeout.inMilliseconds,
       'forceResendingToken': forceResendingToken,
       'app': app.name,
     };
 
-    // TODO(amirh): remove this on when the invokeMethod update makes it to stable Flutter.
-    // https://github.com/flutter/flutter/issues/26431
-    // ignore: strong_mode_implicit_dynamic_method
     await channel.invokeMethod('verifyPhoneNumber', params);
   }
 
@@ -314,9 +296,6 @@ class FirebaseAuth {
   ///     Ensure your app's SHA1 is correct in the Firebase console.
   Future<FirebaseUser> signInWithCustomToken({@required String token}) async {
     assert(token != null);
-    // TODO(amirh): remove this on when the invokeMethod update makes it to stable Flutter.
-    // https://github.com/flutter/flutter/issues/26431
-    // ignore: strong_mode_implicit_dynamic_method
     final Map<dynamic, dynamic> data = await channel.invokeMethod(
       'signInWithCustomToken',
       <String, String>{'token': token, 'app': app.name},
@@ -331,21 +310,15 @@ class FirebaseAuth {
   /// the [onAuthStateChanged] stream.
   Future<void> signOut() async {
     return await channel
-        // TODO(amirh): remove this on when the invokeMethod update makes it to stable Flutter.
-        // https://github.com/flutter/flutter/issues/26431
-        // ignore: strong_mode_implicit_dynamic_method
         .invokeMethod("signOut", <String, String>{'app': app.name});
   }
 
   /// Returns the currently signed-in [FirebaseUser] or [null] if there is none.
   Future<FirebaseUser> currentUser() async {
     final Map<dynamic, dynamic> data = await channel
-        // TODO(amirh): remove this on when the invokeMethod update makes it to stable Flutter.
-        // https://github.com/flutter/flutter/issues/26431
-        // ignore: strong_mode_implicit_dynamic_method
         .invokeMethod("currentUser", <String, String>{'app': app.name});
     final FirebaseUser currentUser =
-        data == null ? null : FirebaseUser._(data, app);
+    data == null ? null : FirebaseUser._(data, app);
     return currentUser;
   }
 
@@ -365,9 +338,6 @@ class FirebaseAuth {
   ///   • `ERROR_OPERATION_NOT_ALLOWED` - Indicates that this type of account is not enabled.
   Future<FirebaseUser> linkWithCredential(AuthCredential credential) async {
     assert(credential != null);
-    // TODO(amirh): remove this on when the invokeMethod update makes it to stable Flutter.
-    // https://github.com/flutter/flutter/issues/26431
-    // ignore: strong_mode_implicit_dynamic_method
     final Map<dynamic, dynamic> data = await channel.invokeMethod(
       'linkWithCredential',
       <String, dynamic>{
@@ -385,9 +355,6 @@ class FirebaseAuth {
   /// code should follow the conventions defined by the IETF in BCP47.
   Future<void> setLanguageCode(String language) async {
     assert(language != null);
-    // TODO(amirh): remove this on when the invokeMethod update makes it to stable Flutter.
-    // https://github.com/flutter/flutter/issues/26431
-    // ignore: strong_mode_implicit_dynamic_method
     await FirebaseAuth.channel.invokeMethod('setLanguageCode', <String, String>{
       'language': language,
       'app': app.name,
@@ -402,13 +369,13 @@ class FirebaseAuth {
       case 'phoneVerificationCompleted':
         final int handle = call.arguments['handle'];
         final PhoneVerificationCompleted verificationCompleted =
-            _phoneAuthCallbacks[handle]['PhoneVerificationCompleted'];
+        _phoneAuthCallbacks[handle]['PhoneVerificationCompleted'];
         verificationCompleted(await currentUser());
         break;
       case 'phoneVerificationFailed':
         final int handle = call.arguments['handle'];
         final PhoneVerificationFailed verificationFailed =
-            _phoneAuthCallbacks[handle]['PhoneVerificationFailed'];
+        _phoneAuthCallbacks[handle]['PhoneVerificationFailed'];
         final Map<dynamic, dynamic> exception = call.arguments['exception'];
         verificationFailed(
             AuthException(exception['code'], exception['message']));
@@ -419,7 +386,7 @@ class FirebaseAuth {
         final int forceResendingToken = call.arguments['forceResendingToken'];
 
         final PhoneCodeSent codeSent =
-            _phoneAuthCallbacks[handle]['PhoneCodeSent'];
+        _phoneAuthCallbacks[handle]['PhoneCodeSent'];
         if (forceResendingToken == null) {
           codeSent(verificationId);
         } else {
@@ -429,7 +396,7 @@ class FirebaseAuth {
       case 'phoneCodeAutoRetrievalTimeout':
         final int handle = call.arguments['handle'];
         final PhoneCodeAutoRetrievalTimeout codeAutoRetrievalTimeout =
-            _phoneAuthCallbacks[handle]['PhoneCodeAutoRetrievealTimeout'];
+        _phoneAuthCallbacks[handle]['PhoneCodeAutoRetrievealTimeout'];
         final String verificationId = call.arguments['verificationId'];
         codeAutoRetrievalTimeout(verificationId);
         break;
@@ -441,7 +408,7 @@ class FirebaseAuth {
     final int id = call.arguments["id"];
 
     final FirebaseUser currentUser =
-        data != null ? FirebaseUser._(data, app) : null;
+    data != null ? FirebaseUser._(data, app) : null;
     _authStateChangedControllers[id].add(currentUser);
   }
 }
