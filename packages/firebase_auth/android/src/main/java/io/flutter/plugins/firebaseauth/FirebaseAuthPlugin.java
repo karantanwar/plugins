@@ -285,9 +285,9 @@ public class FirebaseAuthPlugin implements MethodCallHandler {
   }
 
   private void handleLinkWithCredential(MethodCall call, Result result, FirebaseAuth firebaseAuth) {
-
-    String smsCode = call.arguments().get("smsCode");
-    String verificationId = call.arguments().get("verificationId");
+    Map<String, String> arguments = call.arguments();
+    String smsCode = arguments.get("smsCode");
+    String verificationId = arguments.get("verificationId");
     PhoneAuthCredential phoneAuthCredential =
             PhoneAuthProvider.getCredential(verificationId, smsCode);
     firebaseAuth
@@ -400,13 +400,6 @@ public class FirebaseAuthPlugin implements MethodCallHandler {
           credential = EmailAuthProvider.getCredential(email, password);
           break;
         }
-      case PhoneAuthProvider.PROVIDER_ID:
-      {
-        String verificationId = data.get("verificationId");
-        String smsCode = data.get("smsCode");
-        credential = PhoneAuthProvider.getCredential(verificationId, smsCode);
-        break;
-      }
       case GoogleAuthProvider.PROVIDER_ID:
         {
           String idToken = data.get("idToken");
