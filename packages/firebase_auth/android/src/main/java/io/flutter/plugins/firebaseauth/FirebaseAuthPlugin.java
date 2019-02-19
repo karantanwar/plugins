@@ -285,11 +285,14 @@ public class FirebaseAuthPlugin implements MethodCallHandler {
   }
 
   private void handleLinkWithCredential(MethodCall call, Result result, FirebaseAuth firebaseAuth) {
-    AuthCredential credential = getCredential((Map<String, Object>) call.arguments());
 
+    String smsCode = call.arguments().get("smsCode");
+    String verificationId = call.arguments().get("verificationId");
+    PhoneAuthCredential phoneAuthCredential =
+            PhoneAuthProvider.getCredential(verificationId, smsCode);
     firebaseAuth
             .getCurrentUser()
-            .linkWithCredential(credential)
+            .linkWithCredential( phoneAuthCredential)
             .addOnCompleteListener(new SignInCompleteListener(result));
   }
 
