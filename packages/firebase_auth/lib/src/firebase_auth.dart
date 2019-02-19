@@ -438,7 +438,7 @@ class FirebaseAuth {
       case 'phoneCodeAutoRetrievalTimeout':
         final int handle = call.arguments['handle'];
         final PhoneCodeAutoRetrievalTimeout codeAutoRetrievalTimeout =
-            _phoneAuthCallbacks[handle]['PhoneCodeAutoRetrievealTimeout'];
+            _phoneAuthCallbacks[handle]['PhoneCodeAuthRetrievalTimeout'];
         final String verificationId = call.arguments['verificationId'];
         codeAutoRetrievalTimeout(verificationId);
         break;
