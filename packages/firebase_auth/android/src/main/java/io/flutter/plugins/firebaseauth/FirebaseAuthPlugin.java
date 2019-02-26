@@ -34,6 +34,8 @@ import com.google.firebase.auth.SignInMethodQueryResult;
 import com.google.firebase.auth.TwitterAuthProvider;
 import com.google.firebase.auth.UserInfo;
 import com.google.firebase.auth.UserProfileChangeRequest;
+
+
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
@@ -285,9 +287,10 @@ public class FirebaseAuthPlugin implements MethodCallHandler {
   }
 
   private void handleLinkWithCredential(MethodCall call, Result result, FirebaseAuth firebaseAuth) {
-    Map<String, String> arguments = call.arguments();
-    String smsCode = arguments.get("smsCode");
-    String verificationId = arguments.get("verificationId");
+    Map<String, Object> arguments = call.arguments();
+    Map<String, String> dataMap = (Map<String, String>) arguments.get("data");
+    String smsCode = dataMap.get("smsCode");
+    String verificationId = dataMap.get("verificationId");
     PhoneAuthCredential phoneAuthCredential =
             PhoneAuthProvider.getCredential(verificationId, smsCode);
     firebaseAuth
